@@ -130,6 +130,15 @@ function generateFiles() {
     XLSX.writeFile(wb, `${filenamePrefix}.xlsx`);
 }
 
+function deleteItem(category, item) {
+    // Logic to remove item from selections goes here
+    // Assuming selections is a global object with your data
+    delete selections[category][item];
+
+    // Redraw the preview
+    updatePreview();
+}
+
 function updatePreview() {
     const previewDiv = document.getElementById('preview');
     previewDiv.innerHTML = '<h2>Preview</h2>'; // Reset the preview area

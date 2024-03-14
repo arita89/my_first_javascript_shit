@@ -9,26 +9,28 @@ body,
 html {
     height: 100%;
     font-family: Arial, sans-serif;
+    background: url('../images/background.png') no-repeat center center;
+    background-size: cover;
+    /* Ensures the background covers the entire element */
 }
 
-/* Main layout background acts as a frame */
+/* Main layout container */
 .main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: url('../images/background.png') no-repeat center center/cover;
-    background-size: contain;
-    height: 100vh;
+    justify-content: flex-start;
     padding: 20px;
+    box-sizing: border-box;
 }
 
-/* Static navigation bar at the top */
+/* Navigation bar styling */
 .navbar {
     width: 100%;
     background: #9370DB;
-    /* Purple/Light Violet background */
+    /* Purple/light violet color */
     color: #fff;
-    /* White text */
+    /* White text color */
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
@@ -51,7 +53,7 @@ html {
 .navbar ul li a {
     text-decoration: none;
     color: inherit;
-    /* Inherits white color */
+    /* Inherits the white color */
     font-weight: bold;
     transition: color 0.3s ease;
 }
@@ -60,43 +62,62 @@ html {
     color: #ff7200;
 }
 
-/* Logo size adjustment */
-.logo img {
-    max-width: 50px;
-    /* Much smaller logo */
-    height: auto;
-    margin-right: 10px;
+/* Main container for content and preview - updated for full width */
+.container {
+    display: flex;
+    justify-content: space-around;
+    /* Space out content and preview evenly */
+    align-items: flex-start;
+    /* Align to the top */
+    width: 100%;
+    /* Full width to use all available horizontal space */
+    max-width: 1200px;
+    /* Maximum width to prevent excessive spread on large screens */
+    margin: 0 auto;
+    /* Center the container */
+    padding: 0 20px;
+    /* Padding on sides */
 }
 
-/* Content area styling */
+/* Ensure content takes up all available space minus the preview */
 .content {
+    flex-grow: 1;
+    /* Allow content to grow and use available space */
     background: #fff;
-    /* White background for content area */
-    width: 80%;
-    /* Takes up 80% of .main width */
-    margin-top: 20px;
+    /* White background */
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    position: relative;
+    /* For positioning inner content */
+    margin-right: 20px;
+    /* Space between content and preview */
 }
 
-/* Preview styles */
+/* Increase space between title, items, and buttons */
+.content h2 {
+    margin-bottom: 40px;
+    /* Increased space below heading */
+}
+
+.content .item-select,
+.content button {
+    margin-bottom: 40px;
+    /* Increased space between items and button */
+}
+
+/* Update preview to not exceed a certain width */
 .preview {
-    background: #F8F8FF;
-    /* Light shade of violet for preview background */
+    width: 30%;
+    /* Set a fixed percentage width */
+    min-width: 300px;
+    /* Minimum width for preview */
+    background: #EDE7F6;
+    /* Lighter shade of the navigation background */
     border: 1px solid #ccc;
     padding: 10px;
-    margin-top: 20px;
-    /* Space between content and preview */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Spacing between selectables and their labels */
-.selectables label,
-.selectables input,
-.selectables select {
-    margin-right: 10px;
-    /* Add space between selectables */
+    margin-top: 20px;
+    /* Spacing from content */
 }
 
 /* Table styles within preview */
@@ -122,8 +143,21 @@ td {
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.2s ease;
+    margin-top: 20px;
 }
 
 .btn:hover {
     background-color: #e66a00;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+
+    .content,
+    .preview {
+        width: 100%;
+        /* Full width on smaller screens */
+        max-width: none;
+        /* No maximum width to allow full-width use */
+    }
 }
