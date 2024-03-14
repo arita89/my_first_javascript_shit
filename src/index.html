@@ -5,17 +5,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grocery List Builder</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .preview {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-left: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h2>Select Your Grocery Categories</h2>
-    <div id="categories"></div>
+    <div class="container">
+        <div>
+            <h2>Select Your Grocery Categories</h2>
+            <div id="categories"></div>
 
-    <h2>Items</h2>
-    <div id="items"></div>
+            <h2>Items</h2>
+            <div id="items"></div>
 
-    <button onclick="generateYAML()">Generate YAML</button>
+            <button onclick="generateYAML()">Generate YAML</button>
+        </div>
+        <div class="preview" id="preview">
+            <h2>Preview</h2>
+            <!-- Preview will be generated here -->
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

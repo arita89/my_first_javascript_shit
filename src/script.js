@@ -5,6 +5,9 @@ const categories = {
     'Meat': ['Chicken', 'Beef']
 };
 
+// Initialize an empty object for storing selections
+const selections = {};
+
 function displayCategories() {
     const categoriesDiv = document.getElementById('categories');
     Object.keys(categories).forEach(category => {
@@ -15,49 +18,82 @@ function displayCategories() {
     });
 }
 
-const selections = {}; // Object to store selected items across categories
-
 function selectItems(category) {
-    if (!selections[category]) selections[category] = [];
-
     const itemsDiv = document.getElementById('items');
     itemsDiv.innerHTML = ''; // Clear previous items
+    if (!selections[category]) selections[category] = {};
+
     categories[category].forEach(item => {
+        const itemDiv = document.createElement('div');
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = item;
         checkbox.value = item;
-        checkbox.checked = selections[category].includes(item);
-        checkbox.onchange = () => updateSelections(category, item, checkbox.checked);
+        checkbox.checked = selections[category][item] ? true : false;
+        checkbox.onchange = (e) => updateSelections(category, item, e.target.checked);
+        itemDiv.appendChild(checkbox);
 
         const label = document.createElement('label');
         label.htmlFor = item;
         label.innerText = item;
+        itemDiv.appendChild(label);
 
-        itemsDiv.appendChild(checkbox);
-        itemsDiv.appendChild(label);
-        itemsDiv.appendChild(document.createElement('br'));
+        // Optional flag
+        const optionalLabel = document.createElement('label');
+        optionalLabel.innerText = " Optional: ";
+        itemDiv.appendChild(optionalLabel);
+
+        const optionalSelect = document.createElement('select');
+        optionalSelect.innerHTML = `<option value="true">True</option><option value="false">False</option>`;
+        optionalSelect.value = selections[category][item]?.optional || "false";
+        optionalSelect.disabled = !checkbox.checked;
+        optionalSelect.onchange = () => updateDetails(category, item, 'optional', optionalSelect.value);
+        itemDiv.appendChild(optionalSelect);
+
+        // Amount
+        const amountLabel = document.createElement('label');
+        amountLabel.innerText = " Amount: ";
+        itemDiv.appendChild(amountLabel);
+
+        const amountInput = document.createElement('input');
+        amountInput.type = 'number';
+        amountInput.value = selections[category][item]?.amount || 0;
+        amountInput.min = 0;
+        amountInput.disabled = !checkbox.checked;
+        amountInput.onchange = () => updateDetails(category, item, 'amount', amountInput.value);
+        itemDiv.appendChild(amountInput);
+
+        itemsDiv.appendChild(itemDiv);
     });
 }
 
 function updateSelections(category, item, isChecked) {
     if (isChecked) {
-        selections[category].push(item);
-    } else {
-        const index = selections[category].indexOf(item);
-        if (index !== -1) {
-            selections[category].splice(index, 1);
+        if (!selections[category][item]) {
+            selections[category][item] = { optional: "false", amount: 0 };
         }
+    } else {
+        delete selections[category][item];
     }
+    selectItems(category); // Refresh items to update their status and controls
+    updatePreview(); // Update the preview to reflect the current selections
+}
+
+function updateDetails(category, item, detail, value) {
+    if (selections[category] && selections[category][item]) {
+        selections[category][item][detail] = value;
+    }
+    updatePreview(); // Refresh the preview to show the latest details
 }
 
 function generateYAML() {
     let yamlText = '';
     Object.keys(selections).forEach(category => {
-        if (selections[category].length > 0) {
+        if (Object.keys(selections[category]).length > 0) {
             yamlText += `${category}:\n`;
-            selections[category].forEach(item => {
-                yamlText += `  - ${item}\n`;
+            Object.entries(selections[category]).forEach(([item, details]) => {
+                yamlText += `  ${item}:\n    optional: ${details.optional}\n    amount: ${details.amount}\n`;
             });
         }
     });
@@ -72,5 +108,27 @@ function generateYAML() {
     document.body.removeChild(link);
 }
 
-// Display categories on page load
+function updatePreview() {
+    const previewDiv = document.getElementById('preview');
+    previewDiv.innerHTML = '<h2>Preview</h2>'; // Reset the preview area
+
+    const table = document.createElement('table');
+    Object.entries(selections).forEach(([category, items]) => {
+        let row = table.insertRow(-1);
+        let cell = row.insertCell(-1);
+        cell.colSpan = 3;
+        cell.innerHTML = `<strong>${category}</strong>`;
+
+        Object.entries(items).forEach(([item, details]) => {
+            row = table.insertRow(-1);
+            row.insertCell(-1).innerText = item;
+            row.insertCell(-1).innerText = `Optional: ${details.optional}`;
+            row.insertCell(-1).innerText = `Amount: ${details.amount}`;
+        });
+    });
+
+    previewDiv.appendChild(table);
+}
+
+// Initialize the app
 displayCategories();
