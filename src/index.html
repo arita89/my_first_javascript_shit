@@ -11,10 +11,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 </head>
 
-<body>
+<body class="main"> <!-- Add the 'main' class to apply the background image -->
 
     <!-- Navigation Bar -->
-    <nav>
+    <nav class="navbar">
+        <!-- Include the logo within the navbar -->
+        <div class="logo">
+            <img src="../images/icon.png" alt="Grocery List Builder Logo">
+        </div>
         <ul>
             <li><a href="#home">Home</a></li>
             <li><a href="#about">About</a></li>
@@ -23,14 +27,14 @@
     </nav>
 
     <div class="container">
-        <div>
+        <div class="content">
             <h2>Select Your Grocery Categories</h2>
             <div id="categories"></div>
 
             <h2>Items</h2>
             <div id="items"></div>
 
-            <button onclick="generateFiles()">Get Excel Template</button>
+            <button onclick="generateFiles()" class="btn">Get Excel Template</button>
         </div>
         <div class="preview" id="preview">
             <h2>Preview</h2>
