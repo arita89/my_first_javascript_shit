@@ -87,7 +87,14 @@ function updateDetails(category, item, detail, value) {
     updatePreview(); // Refresh the preview to show the latest details
 }
 
-function generateYAML() {
+function generateFiles() {
+    // Get current date and time, and format it as YYYYMMDD_HHMMSS
+    const now = new Date();
+    const datetime = now.toISOString().slice(0, 19).replace(/-/g, "").replace("T", "_").replace(/:/g, "");
+
+    const filenamePrefix = `grocery_list_${datetime}`;
+
+    // YAML Generation (You can comment this out if you only need the Excel file)
     let yamlText = '';
     Object.keys(selections).forEach(category => {
         if (Object.keys(selections[category]).length > 0) {
@@ -98,14 +105,29 @@ function generateYAML() {
         }
     });
 
-    const blob = new Blob([yamlText], { type: 'text/plain' });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = "GroceryList.yaml";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const yamlBlob = new Blob([yamlText], { type: 'text/plain' });
+    const yamlHref = URL.createObjectURL(yamlBlob);
+    const yamlLink = document.createElement('a');
+    yamlLink.href = yamlHref;
+    yamlLink.download = `${filenamePrefix}.yaml`;
+    document.body.appendChild(yamlLink);
+    yamlLink.click();
+    document.body.removeChild(yamlLink);
+
+    // Excel Generation
+    const wb = XLSX.utils.book_new();
+    Object.keys(selections).forEach(category => {
+        if (Object.keys(selections[category]).length > 0) {
+            const wsData = [["Item", "Optional", "Amount"]];
+            Object.entries(selections[category]).forEach(([item, details]) => {
+                wsData.push([item, details.optional, details.amount]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, category);
+        }
+    });
+
+    XLSX.writeFile(wb, `${filenamePrefix}.xlsx`);
 }
 
 function updatePreview() {
