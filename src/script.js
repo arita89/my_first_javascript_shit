@@ -15,19 +15,24 @@ function displayCategories() {
     });
 }
 
+const selections = {}; // Object to store selected items across categories
+
 function selectItems(category) {
+    if (!selections[category]) selections[category] = [];
+
     const itemsDiv = document.getElementById('items');
     itemsDiv.innerHTML = ''; // Clear previous items
     categories[category].forEach(item => {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = item;
-        checkbox.name = 'items';
         checkbox.value = item;
+        checkbox.checked = selections[category].includes(item);
+        checkbox.onchange = () => updateSelections(category, item, checkbox.checked);
 
         const label = document.createElement('label');
         label.htmlFor = item;
-        label.appendChild(document.createTextNode(item));
+        label.innerText = item;
 
         itemsDiv.appendChild(checkbox);
         itemsDiv.appendChild(label);
@@ -35,13 +40,37 @@ function selectItems(category) {
     });
 }
 
-function generateYAML() {
-    const selectedItems = document.querySelectorAll('input[name="items"]:checked');
-    let yamlText = "";
-    selectedItems.forEach(item => {
-        yamlText += `- ${item.value}\n`;
-    });
-    alert(`YAML Configuration:\n${yamlText}`);
+function updateSelections(category, item, isChecked) {
+    if (isChecked) {
+        selections[category].push(item);
+    } else {
+        const index = selections[category].indexOf(item);
+        if (index !== -1) {
+            selections[category].splice(index, 1);
+        }
+    }
 }
 
+function generateYAML() {
+    let yamlText = '';
+    Object.keys(selections).forEach(category => {
+        if (selections[category].length > 0) {
+            yamlText += `${category}:\n`;
+            selections[category].forEach(item => {
+                yamlText += `  - ${item}\n`;
+            });
+        }
+    });
+
+    const blob = new Blob([yamlText], { type: 'text/plain' });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = "GroceryList.yaml";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Display categories on page load
 displayCategories();
