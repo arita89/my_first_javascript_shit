@@ -135,7 +135,23 @@ html {
 
 
 /* Button styles */
-.btn,
+.excel-button-container {
+    position: absolute;
+    left: 20px;
+    top: 400px;
+    /* Adjust based on your navbar height and desired position */
+}
+
+.btn-excel {
+    background: #ff7200;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+}
+
 .navbar button {
     background: #ff7200;
     border: none;
