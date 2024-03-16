@@ -167,6 +167,13 @@ html {
     margin: 20px auto;
 }
 
+.selected-category {
+    font-weight: bold;
+    /* Example: Make the text bold */
+    border: 4px solid #f20505;
+    /* Example: Add a solid border */
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
 

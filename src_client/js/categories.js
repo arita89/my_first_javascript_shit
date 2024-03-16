@@ -1,16 +1,16 @@
 import { selectItems } from './items.js';
 
 export const categories = {
-    'Fruits': ['Apples', 'Pears'],
-    'Vegetables': ['Carrots', 'Tomatoes'],
-    'Dairy': ['Milk', 'Cheese'],
-    'Meat': ['Chicken', 'Beef'],
-    'Bakery': ['Bread', 'Croissant'],
-    'Frozen': ['Ice Cream', 'Frozen Pizza'],
-    'Beverages': ['Coffee', 'Tea'],
-    'Snacks': ['Chips', 'Chocolate'],
-    'Personal Care': ['Shampoo', 'Soap'],
-    'Household': ['Laundry Detergent', 'Dish Soap'],
+    'Fruits': ['Apples', 'Pears', 'Bananas', 'Oranges', 'Grapes'],
+    'Vegetables': ['Carrots', 'Tomatoes', 'Lettuce', 'Cucumbers', 'Peppers'],
+    'Dairy': ['Milk', 'Cheese', 'Yogurt', 'Butter', 'Cream'],
+    'Meat': ['Chicken', 'Beef', 'Pork', 'Lamb', 'Turkey'],
+    'Bakery': ['Bread', 'Croissant', 'Bagels', 'Muffins', 'Cake'],
+    'Frozen': ['Ice Cream', 'Frozen Pizza', 'Frozen Vegetables', 'Frozen Desserts', 'Frozen Dinners'],
+    'Beverages': ['Coffee', 'Tea', 'Soda', 'Juice', 'Water'],
+    'Snacks': ['Chips', 'Chocolate', 'Nuts', 'Popcorn', 'Candy'],
+    'Personal Care': ['Shampoo', 'Soap', 'Toothpaste', 'Deodorant', 'Lotion'],
+    'Household': ['Laundry Detergent', 'Dish Soap', 'Cleaners', 'Paper Towels', 'Trash Bags'],
     'Pantry': ['Flour', 'Sugar', 'Rice', 'Pasta', 'Canned Goods'],
     'Spices': ['Salt', 'Pepper', 'Curry Powder', 'Garlic Powder', 'Paprika'],
     'Garden': ['Seeds', 'Tools'],
@@ -71,13 +71,17 @@ function displayCategories() {
         button.style.backgroundColor = baseColor;
 
         button.onclick = () => {
-            // Reset the last selected button to its base color
+            // Reset the last selected button to its base color and remove the visual marker
             if (lastSelectedButton) {
                 const lastCategory = lastSelectedButton.innerText;
                 lastSelectedButton.style.backgroundColor = categoryColors[lastCategory] || categoryColors['default'];
+                lastSelectedButton.classList.remove('selected-category'); // Remove visual marker
+                lastSelectedButton.innerHTML = lastSelectedButton.innerText.replace('✔ ', ''); // Remove checkmark
             }
-            // Darken the color of the newly selected button
+            // Darken the color of the newly selected button and add the visual marker
             button.style.backgroundColor = darkenColor(baseColor);
+            button.classList.add('selected-category'); // Add visual marker
+            button.innerHTML = '✔ ' + button.innerText; // Prepend checkmark
             lastSelectedButton = button; // Update the reference to the last selected button
 
             selectItems(category, categories[category]);
