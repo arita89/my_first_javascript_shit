@@ -40,14 +40,49 @@ const categoryColors = {
     'default': '#d3d3d3' // Light grey for any category not explicitly defined
 };
 
+function darkenColor(color, amount = 40) {
+    let usePound = false;
+    if (color[0] == "#") {
+        color = color.slice(1);
+        usePound = true;
+    }
+    let num = parseInt(color, 16);
+    let r = (num >> 16) - amount;
+    let b = ((num >> 8) & 0x00FF) - amount;
+    let g = (num & 0x0000FF) - amount;
+    if (r > 255) r = 255;
+    else if (r < 0) r = 0;
+    if (b > 255) b = 255;
+    else if (b < 0) b = 0;
+    if (g > 255) g = 255;
+    else if (g < 0) g = 0;
+    return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
+}
+
+let lastSelectedButton = null; // Keep track of the last selected button
+
 function displayCategories() {
     const categoriesDiv = document.getElementById('categories');
     Object.keys(categories).forEach(category => {
         const button = document.createElement('button');
         button.innerText = category;
-        // Apply color based on the category or use default
-        button.style.backgroundColor = categoryColors[category] || categoryColors['default'];
-        button.onclick = () => selectItems(category, categories[category]);
+        // Apply base color based on the category or use default
+        const baseColor = categoryColors[category] || categoryColors['default'];
+        button.style.backgroundColor = baseColor;
+
+        button.onclick = () => {
+            // Reset the last selected button to its base color
+            if (lastSelectedButton) {
+                const lastCategory = lastSelectedButton.innerText;
+                lastSelectedButton.style.backgroundColor = categoryColors[lastCategory] || categoryColors['default'];
+            }
+            // Darken the color of the newly selected button
+            button.style.backgroundColor = darkenColor(baseColor);
+            lastSelectedButton = button; // Update the reference to the last selected button
+
+            selectItems(category, categories[category]);
+        };
+
         categoriesDiv.appendChild(button);
     });
 }
