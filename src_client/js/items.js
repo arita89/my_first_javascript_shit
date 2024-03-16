@@ -1,5 +1,6 @@
 import { updatePreview } from './preview.js';
 import { categories } from './categories.js';
+import { categoryColors } from './categories.js';
 
 export let selections = {};
 
@@ -62,6 +63,22 @@ function updateSelections(category, item, isChecked) {
     } else {
         delete selections[category][item];
     }
+
+    // Check if the category has any selected subitems
+    const anySelected = Object.values(selections[category]).some(status => status === true);
+    const categoryButton = document.querySelector(`button[data-category='${category}']`);
+    if (anySelected) {
+        // If at least one subitem is selected, ensure the category is marked
+        categoryButton.classList.add('selected-category');
+        categoryButton.innerHTML = '✔ ' + categoryButton.innerText; // Add a symbol for visual marking
+    } else {
+        // If no subitems are selected, revert the category button to normal
+        const baseColor = categoryColors[category] || categoryColors['default'];
+        categoryButton.style.backgroundColor = baseColor;
+        categoryButton.classList.remove('selected-category');
+        categoryButton.innerHTML = category; // Remove symbols/icons
+    }
+
     selectItems(category); // Refresh items to update their status and controls
     updatePreview(selections); // Update the preview to reflect the current selections
 }

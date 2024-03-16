@@ -26,7 +26,7 @@ export const categories = {
 };
 
 // Define a mapping for category colors
-const categoryColors = {
+export const categoryColors = {
     'Fruits': '#90ee90', // Light green
     'Vegetables': '#90ee90', // Light green
     'Dairy': '#90ee90', // Light green
@@ -66,23 +66,22 @@ function displayCategories() {
     Object.keys(categories).forEach(category => {
         const button = document.createElement('button');
         button.innerText = category;
-        // Apply base color based on the category or use default
         const baseColor = categoryColors[category] || categoryColors['default'];
         button.style.backgroundColor = baseColor;
+        button.setAttribute('data-category', category); // For easy identification
 
         button.onclick = () => {
-            // Reset the last selected button to its base color and remove the visual marker
-            if (lastSelectedButton) {
-                const lastCategory = lastSelectedButton.innerText;
-                lastSelectedButton.style.backgroundColor = categoryColors[lastCategory] || categoryColors['default'];
-                lastSelectedButton.classList.remove('selected-category'); // Remove visual marker
-                lastSelectedButton.innerHTML = lastSelectedButton.innerText.replace('✔ ', ''); // Remove checkmark
-            }
-            // Darken the color of the newly selected button and add the visual marker
+            // Reset appearance of all category buttons
+            document.querySelectorAll('#categories button').forEach(btn => {
+                btn.style.backgroundColor = categoryColors[btn.getAttribute('data-category')] || categoryColors['default'];
+                btn.classList.remove('selected-category');
+                btn.innerHTML = btn.getAttribute('data-category'); // Remove symbols/icons
+            });
+
+            // Mark the currently checked category
             button.style.backgroundColor = darkenColor(baseColor);
-            button.classList.add('selected-category'); // Add visual marker
-            button.innerHTML = '✔ ' + button.innerText; // Prepend checkmark
-            lastSelectedButton = button; // Update the reference to the last selected button
+            button.classList.add('selected-category');
+            button.innerHTML = '✔ ' + button.innerText; // Add a symbol for visual marking
 
             selectItems(category, categories[category]);
         };
