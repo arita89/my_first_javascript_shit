@@ -16,8 +16,11 @@ html {
 /* Navigation bar styling */
 .navbar {
     display: flex;
+    overflow-x: auto;
+    /* Enables horizontal scrolling */
+    white-space: nowrap;
+    /* Prevents wrapping of category buttons */
     justify-content: flex-start;
-    /* Align category buttons to the left */
     align-items: center;
     width: 100%;
     background: #9370DB;
@@ -27,41 +30,32 @@ html {
     position: sticky;
     top: 0;
     z-index: 1000;
-    gap: 10px;
-    /* Space between category buttons */
 }
 
 #categories {
     display: flex;
     gap: 10px;
-    /* Adjust the space between category buttons */
 }
 
-.navbar ul {
-    list-style-type: none;
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    /* Adjust the space between nav links */
-    margin: 0;
-    padding: 0;
+#categories button {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    margin-right: 8px;
+    /* Adds space between buttons */
+    border-radius: 4px;
+    white-space: nowrap;
+    /* Ensures text in buttons doesn't wrap */
+    background-color: #90ee90;
+    /* Default background color, can be dynamically changed by JS */
 }
 
-.navbar ul li {
-    margin: 0 15px;
+/* If you have any specific button that needs a distinct style */
+#categories button.special {
+    background-color: #add8e6;
+    /* Example of a different background color */
 }
-
-.navbar ul li a {
-    text-decoration: none;
-    color: inherit;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-.navbar ul li a:hover {
-    color: #ff7200;
-}
-
 
 .container {
     display: flex;
@@ -175,6 +169,22 @@ html {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #categories {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #categories button {
+        margin-right: 0;
+        /* Adjustments for smaller screens */
+    }
+
     .container {
         flex-direction: column;
         align-items: center;

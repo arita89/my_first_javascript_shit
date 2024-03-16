@@ -4,15 +4,40 @@ export const categories = {
     'Fruits': ['Apples', 'Pears'],
     'Vegetables': ['Carrots', 'Tomatoes'],
     'Dairy': ['Milk', 'Cheese'],
-    'Meat': ['Chicken', 'Beef']
+    'Meat': ['Chicken', 'Beef'],
+    'Bakery': ['Bread', 'Croissant'],
+    'Frozen': ['Ice Cream', 'Frozen Pizza'],
+    'Beverages': ['Coffee', 'Tea'],
+    'Snacks': ['Chips', 'Chocolate'],
+    'Personal Care': ['Shampoo', 'Soap'],
+    'Household': ['Laundry Detergent', 'Dish Soap'],
+    'Pantry': ['Flour', 'Sugar', 'Rice', 'Pasta', 'Canned Goods'],
+    'Spices': ['Salt', 'Pepper', 'Curry Powder', 'Garlic Powder', 'Paprika'],
+    'Garden': ['Seeds', 'Tools'],
+    'Animals': ['Pet Food', 'Toys'],
+    'Cleaning': ['Disinfectants', 'Wipes'],
+    'Electronics': ['Batteries', 'Chargers'],
+    'Books': ['Novels', 'Magazines'],
+    'Toys & Games': ['Board Games', 'Action Figures'],
+    'Clothing': ['Shirts', 'Pants'],
+    'Baby Clothing': ['Shirts', 'Dress'],
+    'Garage': ['Bike', 'Car'],
+    // Add more as needed
 };
 
-// Optional: Define a mapping for category colors
+// Define a mapping for category colors
 const categoryColors = {
     'Fruits': '#90ee90', // Light green
     'Vegetables': '#90ee90', // Light green
-    // Default color for other categories
-    'default': '#add8e6' // Light blue
+    'Dairy': '#90ee90', // Light green
+    'Meat': '#90ee90', // Light green
+    'Bakery': '#fdd5b1', // Light orange
+    'Frozen': '#fdd5b1', // Light orange
+    'Beverages': '#fdd5b1', // Light orange
+    'Snacks': '#b0e0e6', // Powder blue
+    'Personal Care': '#b0e0e6', // Powder blue
+    'Household': '#b0e0e6', // Powder blue
+    'default': '#d3d3d3' // Light grey for any category not explicitly defined
 };
 
 function displayCategories() {
