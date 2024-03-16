@@ -1,6 +1,6 @@
 import { selectItems } from './items.js';
 
-const categories = {
+export const categories = {
     'Fruits': ['Apples', 'Pears'],
     'Vegetables': ['Carrots', 'Tomatoes'],
     'Dairy': ['Milk', 'Cheese'],

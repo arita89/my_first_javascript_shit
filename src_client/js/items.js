@@ -1,8 +1,10 @@
 import { updatePreview } from './preview.js';
+import { categories } from './categories.js';
 
-let selections = {};
+export let selections = {};
 
 function selectItems(category) {
+    console.log('Category selected:', category);
     const itemsDiv = document.getElementById('items');
     itemsDiv.innerHTML = ''; // Clear previous items
     if (!selections[category]) selections[category] = {};
@@ -61,14 +63,14 @@ function updateSelections(category, item, isChecked) {
         delete selections[category][item];
     }
     selectItems(category); // Refresh items to update their status and controls
-    updatePreview(); // Update the preview to reflect the current selections
+    updatePreview(selections); // Update the preview to reflect the current selections
 }
 
 function updateDetails(category, item, detail, value) {
     if (selections[category] && selections[category][item]) {
         selections[category][item][detail] = value;
     }
-    updatePreview(); // Refresh the preview to show the latest details
+    updatePreview(selections); // Refresh the preview to show the latest details
 }
 
 export { selectItems, updateSelections, updateDetails };

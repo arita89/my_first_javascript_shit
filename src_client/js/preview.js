@@ -1,4 +1,6 @@
-function updatePreview() {
+
+
+function updatePreview(selections) {
     const previewDiv = document.getElementById('preview');
     previewDiv.innerHTML = '<h2>Preview</h2>'; // Reset the preview area
 
