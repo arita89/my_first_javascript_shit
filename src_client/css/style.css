@@ -11,26 +11,20 @@ html {
     font-family: Arial, sans-serif;
     background: url('../images/background.png') no-repeat center center;
     background-size: cover;
-    /* Ensures the background covers the entire element */
-}
-
-/* Main layout container */
-.main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 20px;
-    box-sizing: border-box;
 }
 
 /* Navigation bar styling */
 .navbar {
+    display: flex;
+    overflow-x: auto;
+    /* Enables horizontal scrolling */
+    white-space: nowrap;
+    /* Prevents wrapping of category buttons */
+    justify-content: flex-start;
+    align-items: center;
     width: 100%;
     background: #9370DB;
-    /* Purple/light violet color */
     color: #fff;
-    /* White text color */
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
@@ -38,104 +32,111 @@ html {
     z-index: 1000;
 }
 
-.navbar ul {
-    list-style-type: none;
+#categories {
     display: flex;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
+    gap: 10px;
 }
 
-.navbar ul li {
-    margin: 0 15px;
+#categories button {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    margin-right: 8px;
+    /* Adds space between buttons */
+    border-radius: 4px;
+    white-space: nowrap;
+    /* Ensures text in buttons doesn't wrap */
+    background-color: #90ee90;
+    /* Default background color, can be dynamically changed by JS */
 }
 
-.navbar ul li a {
-    text-decoration: none;
-    color: inherit;
-    /* Inherits the white color */
-    font-weight: bold;
-    transition: color 0.3s ease;
+/* If you have any specific button that needs a distinct style */
+#categories button.special {
+    background-color: #add8e6;
+    /* Example of a different background color */
 }
 
-.navbar ul li a:hover {
-    color: #ff7200;
-}
-
-/* Main container for content and preview - updated for full width */
 .container {
     display: flex;
-    justify-content: space-around;
-    /* Space out content and preview evenly */
+    justify-content: space-between;
     align-items: flex-start;
-    /* Align to the top */
     width: 100%;
-    /* Full width to use all available horizontal space */
     max-width: 1200px;
-    /* Maximum width to prevent excessive spread on large screens */
-    margin: 0 auto;
-    /* Center the container */
+    margin: 20px auto;
     padding: 0 20px;
-    /* Padding on sides */
+    gap: 20px;
 }
 
-/* Ensure content takes up all available space minus the preview */
 .content {
     flex-grow: 1;
-    /* Allow content to grow and use available space */
     background: #fff;
-    /* White background */
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
-    /* For positioning inner content */
     margin-right: 20px;
-    /* Space between content and preview */
+    margin-top: 20px;
+    /* Added space from the navigation bar */
 }
 
-/* Increase space between title, items, and buttons */
-.content h2 {
-    margin-bottom: 40px;
-    /* Increased space below heading */
-}
-
-.content .item-select,
-.content button {
-    margin-bottom: 40px;
-    /* Increased space between items and button */
-}
-
-/* Update preview to not exceed a certain width */
 .preview {
-    width: 30%;
-    /* Set a fixed percentage width */
+    flex-basis: 30%;
     min-width: 300px;
-    /* Minimum width for preview */
     background: #EDE7F6;
-    /* Lighter shade of the navigation background */
     border: 1px solid #ccc;
     padding: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
-    /* Spacing from content */
+    /* Ensure consistent spacing from the navigation bar */
 }
 
 /* Table styles within preview */
-table {
+.preview table {
     width: 100%;
     border-collapse: collapse;
+    /* Ensures borders between cells are shared */
+    margin-top: 20px;
+    /* Adds some space above the table */
 }
 
-th,
-td {
+.preview th,
+.preview td {
     border: 1px solid #ccc;
-    padding: 5px;
+    /* Light grey border for a subtle look */
+    padding: 8px;
+    /* Adds padding inside cells for text readability */
     text-align: left;
-    color: #333;
+    /* Aligns text to the left; adjust as needed */
 }
+
+.preview th {
+    background-color: #f2f2f2;
+    /* Light background color for headers */
+    color: #333;
+    /* Dark text color for contrast */
+}
+
+.buttons {
+    flex-basis: 20%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.options {
+    flex-grow: 1;
+    max-width: 60%;
+}
+
 
 /* Button styles */
-.btn {
+.excel-button-container {
+    position: absolute;
+    left: 20px;
+    top: 400px;
+    /* Adjust based on your navbar height and desired position */
+}
+
+.btn-excel {
     background: #ff7200;
     border: none;
     color: #fff;
@@ -143,21 +144,62 @@ td {
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.2s ease;
-    margin-top: 20px;
 }
 
-.btn:hover {
+.navbar button {
+    background: #ff7200;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+}
+
+.btn:hover,
+.navbar button:hover {
     background-color: #e66a00;
+}
+
+.btn {
+    display: block;
+    width: calc(100% - 40px);
+    margin: 20px auto;
+}
+
+.selected-category {
+    font-weight: bold;
+    /* Example: Make the text bold */
+    border: 4px solid #f20505;
+    /* Example: Add a solid border */
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
 
-    .content,
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #categories {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #categories button {
+        margin-right: 0;
+        /* Adjustments for smaller screens */
+    }
+
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .options,
     .preview {
         width: 100%;
-        /* Full width on smaller screens */
         max-width: none;
-        /* No maximum width to allow full-width use */
     }
 }

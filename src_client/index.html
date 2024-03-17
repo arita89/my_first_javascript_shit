@@ -5,49 +5,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grocery List Builder</title>
-    <!-- Link to external CSS file -->
     <link rel="stylesheet" href="./css/style.css">
-    <!-- SheetJS Library for Excel file generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 </head>
 
-<body class="main"> <!-- Add the 'main' class to apply the background image -->
-
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-
-        <!-- Include the logo within the navbar , muted at eh moment-->
-        <!-- div class="logo">
-            <img src="../images/icon.png" alt="Logo">
-        </div> -->
-        <ul>
-            <li><a href="javascript:void(0)">Home</a></li>
-            <li><a href="javascript:void(0)">About</a></li>
-            <!-- Additional navigation links as needed -->
-        </ul>
+<body class="main">
+    <nav class="navbar" id="categories">
+        <!-- Category buttons will be dynamically inserted here -->
     </nav>
+
+    <div class="excel-button-container">
+        <button class="btn-excel">Get Excel Template</button>
+    </div>
 
     <div class="container">
         <div class="content">
             <h2>Select Your Grocery Categories</h2>
-            <div id="categories"></div>
-
-            <h2>Items</h2>
-            <div id="items"></div>
-
-            <!--<button onclick="generateFiles()" class="btn">Get Excel Template</button>-->
-            <button class="btn">Get Excel Template</button>
+            <div id="items">
+                <!-- Items will appear here upon category selection -->
+            </div>
         </div>
         <div class="preview" id="preview">
             <h2>Preview</h2>
-            <!-- Preview will be generated here -->
+            <!-- Preview table will be generated here -->
         </div>
     </div>
 
-    <!-- Your custom JavaScript file 
-    <script src="script.js"></script>-->
     <script type="module" src="./js/main.js"></script>
-
 </body>
 
 </html>

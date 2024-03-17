@@ -1,7 +1,7 @@
 import { selections } from './items.js';
 
 function setupGenerateFilesButton() {
-    const button = document.querySelector('.btn'); // Adjust if necessary to select your button
+    const button = document.querySelector('.btn-excel'); // Adjust if necessary to select your button
     button.addEventListener('click', generateFiles);
 }
 

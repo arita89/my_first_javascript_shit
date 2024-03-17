@@ -14,5 +14,5 @@ serve:
 
 serve-be:
 	@echo "Activating conda environment and starting backend server"
-	@cd src_server && conda activate flask_env && python main.py
+	@cd src_server && python main.py
 
