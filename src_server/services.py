@@ -7,6 +7,21 @@ from tempfile import NamedTemporaryFile
 import os
 from openpyxl import Workbook
 
+def apply_sheet_colors(writer, sheet_name, color_code):
+    """
+    Applies color to sheet tabs using openpyxl.
+
+    Parameters:
+    - writer: The pd.ExcelWriter instance
+    - sheet_name: The name of the sheet to color
+    - color_code: The hex color code (expected without '#')
+    """
+    workbook = writer.book
+    if sheet_name in workbook.sheetnames:
+        sheet = workbook[sheet_name]
+        sheet.sheet_properties.tabColor = color_code
+        
+
 # Function to convert CSV content (as a string) to YAML string
 def csv_to_yaml(csv_content, delimiter=';'):
     csv_reader = csv.DictReader(csv_content.splitlines(), delimiter=delimiter)
@@ -40,7 +55,7 @@ def csv_to_yaml(csv_content, delimiter=';'):
     return yaml.dump(yaml_data, sort_keys=False, default_flow_style=False, allow_unicode=True)
 
 # Function to convert YAML string to an Excel file and return its path
-def yaml_to_excel(yaml_str, excel_file_name='data.xlsx'):
+def yaml_to_excel(yaml_str):
     data = yaml.safe_load(yaml_str)
     temp_file = NamedTemporaryFile(delete=False, suffix=".xlsx")
     excel_file_path = temp_file.name
@@ -48,12 +63,15 @@ def yaml_to_excel(yaml_str, excel_file_name='data.xlsx'):
     
     with pd.ExcelWriter(excel_file_path, engine='openpyxl') as writer:
         for sheet in data['sheets']:
-            df = pd.DataFrame({col['name_internal']: [] for col in sheet['columns']})
-            df.to_excel(writer, sheet_name=sheet['name'], index=False)
-            # Set the tab color
-            if 'color' in sheet and sheet['color'].strip():
-                writer.sheets[sheet['name']].tab_color = sheet['color'][1:]  # Remove '#' for openpyxl
-    
+            sheet_name = sheet['name'][:31].strip()  # Ensure valid Excel sheet name
+            df = pd.DataFrame(columns=[col['name_internal'] for col in sheet['columns']])
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
+            
+            # Apply sheet tab color
+            if 'color' in sheet:
+                color_code = sheet['color'].lstrip('#')
+                apply_sheet_colors(writer, sheet_name, color_code)
+
     return excel_file_path
 
 # Function to clean up the generated file
