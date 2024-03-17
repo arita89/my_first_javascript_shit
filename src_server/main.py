@@ -1,19 +1,17 @@
-from flask import Flask, send_file, request, after_this_request
-from flask_restx import Api, Resource, fields, reqparse
-from flask import send_from_directory
+from flask import Flask, send_file, request, after_this_request, jsonify
+from flask_restx import Api, Resource, reqparse
 from flask_cors import CORS
 
+from werkzeug.utils import secure_filename
 from tempfile import NamedTemporaryFile
-import shutil
 
 from werkzeug.datastructures import FileStorage
-import yaml
-import pandas as pd
 import os
 
 import services
 import utils
 from models.create_model_from_csv import generate_pydantic_model
+from validation_pre_ingestion import read_excel_to_dataframes, dataframe_to_dicts, convert_dfs_to_data_dicts, validate_data_with_pydantic
 
 app = Flask(__name__)
 CORS(app)
@@ -107,6 +105,36 @@ class CSVToPydanticModel(Resource):
         # return send_from_directory(directory=save_directory, filename=filename, as_attachment=True)
         # Or just return a success message
         return {'message': 'Pydantic model generated successfully', 'file_path': file_path}
+
+# Extend your existing upload parser configuration 
+upload_parser.add_argument('file', location='files', type=FileStorage, required=True, help='Excel file to validate')
+@ns.route("/validate-excel")
+@ns.expect(upload_parser)
+class ValidateExcel(Resource):
+    @ns.doc("validate_excel_data")
+    def post(self):
+        args = upload_parser.parse_args()
+        excel_file = args['file']
+        
+        # Temporary saving file to read it
+        temp_file = NamedTemporaryFile(delete=False, suffix=".xlsx")
+        excel_file.save(temp_file.name)
+
+        # Process the file for validation
+        dfs = read_excel_to_dataframes(temp_file.name)
+        print (dfs)
+        data_dicts = convert_dfs_to_data_dicts(dfs)
+        valid_data, errors = validate_data_with_pydantic(data_dicts)
+
+        # Cleanup the temporary file
+        os.remove(temp_file.name)
+
+        if errors:
+            # Return validation errors
+            return {'validation_errors': errors}, 400
+        else:
+            # Placeholder for further processing of valid_data, such as database ingestion
+            return {'message': 'Excel data is valid!', 'valid_data': [data.dict() for data in valid_data]}, 200
 
 # Regular Flask route for the home page
 @app.route("/")

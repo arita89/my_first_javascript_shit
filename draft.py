@@ -96,3 +96,30 @@ def apply_conditional_formatting(worksheet, column_letter):
     worksheet.conditional_formatting.add(f'{column_letter}2:{column_letter}1048576',
                                          CellIsRule(operator='equal', formula=['""'], stopIfTrue=True, fill=red_fill))
     
+#THIS WORKS
+def generate_pydantic_model(csv_content: str) -> str:
+    #print ("READING CSV FILE")
+    csv_reader = csv.DictReader(StringIO(csv_content), delimiter=';')
+    fields = []
+    for row in csv_reader:
+        py_type = type_mapping(row['column_validation_format'])
+        validation = validation_mapping(row['column_validation_type'], row['column_validation_details'])
+
+        # Constructing each field line.
+        field_line = f"    {row['column_name_internal']}: {py_type} = Field(..., {validation})"
+        fields.append(field_line)
+
+    # Joining all field lines to form the body of the Pydantic model class.
+    fields_body = "\n".join(fields)
+
+    # Forming the complete model class as a string.
+    model_code = f"""
+from pydantic import BaseModel, Field
+import datetime
+
+class TemplateModel(BaseModel):
+{fields_body}
+    """
+    #print ("PYDANTIC MODEL BUILT")
+    #print (model_code.strip())
+    return model_code.strip()

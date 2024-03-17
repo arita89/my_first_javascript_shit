@@ -29,29 +29,28 @@ def validation_mapping(validation_type: str, details: str):
     return ''
 
 def generate_pydantic_model(csv_content: str) -> str:
-    #print ("READING CSV FILE")
     csv_reader = csv.DictReader(StringIO(csv_content), delimiter=';')
     fields = []
     for row in csv_reader:
         py_type = type_mapping(row['column_validation_format'])
         validation = validation_mapping(row['column_validation_type'], row['column_validation_details'])
+        is_optional = row.get('column_is_optional', 'TRUE').strip().upper() == 'TRUE'
 
-        # Constructing each field line.
-        field_line = f"    {row['column_name_internal']}: {py_type} = Field(..., {validation})"
+        # Adjusting default based on column optionality
+        default = "None" if is_optional else "..."
+        
+        # Constructing each field line with the adjusted default
+        field_line = f"    {row['column_name_internal']}: Optional[{py_type}] = Field({default}, {validation})" if is_optional else f"    {row['column_name_internal']}: {py_type} = Field({default}, {validation})"
         fields.append(field_line)
 
-    # Joining all field lines to form the body of the Pydantic model class.
     fields_body = "\n".join(fields)
 
-    # Forming the complete model class as a string.
     model_code = f"""
 from pydantic import BaseModel, Field
+from typing import Optional
 import datetime
 
 class TemplateModel(BaseModel):
 {fields_body}
     """
-    #print ("PYDANTIC MODEL BUILT")
-    #print (model_code.strip())
     return model_code.strip()
-
