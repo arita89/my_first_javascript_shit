@@ -10,6 +10,9 @@ import yaml
 import pandas as pd
 import os
 
+import services
+import utils
+
 app = Flask(__name__)
 CORS(app)
 api = Api(
@@ -23,57 +26,52 @@ upload_parser.add_argument("file", location="files", type=FileStorage, required=
 # Define the API namespace
 ns = api.namespace("yaml2excel", description="List of all endpoints")
 
-
-# Function to convert YAML to Excel
-def yaml_to_excel(yaml_file, excel_file):
-    with open(yaml_file, "r") as file:
-        data = yaml.safe_load(file)
-
-        # Create a temporary file
-        temp_file = NamedTemporaryFile(delete=False, suffix=".xlsx")
-        excel_file_path = temp_file.name
-        temp_file.close()  # Close the file so pandas can write to it
-
-        # Use pandas to convert the dictionary to an Excel file
-        with pd.ExcelWriter(excel_file_path) as writer:
-            for category, items in data.items():
-                df = pd.DataFrame(items)
-                df.to_excel(writer, sheet_name=category, index=False)
-
-        # Ensure the temporary file is deleted after the request
+@ns.route("/csv-to-yaml")
+@ns.expect(upload_parser)
+class CSVToYAML(Resource):
+    @ns.doc("convert_csv_to_yaml")
+    def post(self):
+        args = upload_parser.parse_args()
+        csv_file = args['file']
+        original_filename = csv_file.filename.rsplit('.', 1)[0]  # Get the filename without extension
+        filename = f"{original_filename}_csv_to_yaml"
+        csv_content = csv_file.read().decode('utf-8-sig')
+        yaml_content = services.csv_to_yaml(csv_content)
+        yaml_filename = utils.generate_file_name(filename, 'yaml')  # Use the original filename to create the new filename
+        
+        # Generate a temporary file for the YAML
+        temp_yaml_file = NamedTemporaryFile(delete=False, suffix=".yaml")
+        with open(temp_yaml_file.name, 'w') as file:
+            file.write(yaml_content)
+        
         @after_this_request
-        def remove_file(response):
+        def cleanup(response):
+            os.remove(temp_yaml_file.name)
+            return response
+
+        return send_file(temp_yaml_file.name, as_attachment=True, download_name=yaml_filename)
+
+@ns.route("/yaml-to-excel")
+@ns.expect(upload_parser)
+class YAMLToExcel(Resource):
+    @ns.doc("convert_yaml_to_excel")
+    def post(self):
+        args = upload_parser.parse_args()
+        yaml_file = args['file']
+        original_filename = yaml_file.filename.rsplit('.', 1)[0]  # Get the filename without extension
+        filename = f"{original_filename}_yaml_to_excel"
+        yaml_content = yaml_file.read().decode('utf-8')
+        excel_filename = utils.generate_file_name(filename, 'xlsx')  # Use the original filename to create the new filename
+        
+        excel_file_path = services.yaml_to_excel(yaml_content)
+
+        @after_this_request
+        def cleanup(response):
             os.remove(excel_file_path)
             return response
 
-        # Send the file
-        return send_file(excel_file_path, as_attachment=True, download_name="data.xlsx")
+        return send_file(excel_file_path, as_attachment=True, download_name=excel_filename)
 
-
-@ns.route("/generate-excel")
-@ns.expect(upload_parser)
-class GenerateExcel(Resource):
-    @ns.doc("generate_excel")
-    def post(self):
-        args = upload_parser.parse_args()
-        yaml_file = args["file"]  # This is a FileStorage instance
-
-        # Convert YAML content to Python dictionary
-        data = yaml.safe_load(yaml_file)
-
-        # Use a temporary file to avoid saving the Excel file locally
-        with NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
-            with pd.ExcelWriter(tmp.name) as writer:
-                for category, items in data.items():
-                    df = pd.DataFrame(items)
-                    df.to_excel(writer, sheet_name=category, index=False)
-            # No need to manually delete, Python cleans up the temporary file
-
-            # Rewind the file to send it correctly
-            tmp.seek(0)
-            return send_file(
-                tmp.name, as_attachment=True, download_name=f"{yaml_file.filename}.xlsx"
-            )
 
 
 # Regular Flask route for the home page
