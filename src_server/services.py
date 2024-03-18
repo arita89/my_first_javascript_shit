@@ -8,6 +8,8 @@ import os
 
 # to create and format excel file
 from openpyxl import Workbook
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils.cell import get_column_letter
 from openpyxl.styles import PatternFill
@@ -176,6 +178,59 @@ def yaml_to_excel(yaml_str):
                                              col.get('data_validation_details'))
 
     return excel_file_path
+
+def append_to_excel_as_hidden_locked(source_path, target_path, sheet_name, password):
+    # Determine if the source is CSV or Excel and load it into a DataFrame
+    if source_path.endswith('.csv'):
+        df = pd.read_csv(source_path)
+    else:  # For Excel files
+        df = pd.read_excel(source_path)
+    
+    #print (df) 
+
+    # Load the target workbook
+    workbook = load_workbook(target_path)
+
+    # Check if the sheet name already exists
+    if sheet_name in workbook.sheetnames:
+        msg = f"Sheet name {sheet_name} already exists in target workbook."
+        print (msg)
+        return msg
+
+    # Create a new sheet in the workbook
+    sheet = workbook.create_sheet(title=sheet_name)
+
+    # Fill the new sheet with data from the DataFrame
+    for row in dataframe_to_rows(df, index=False, header=True):
+        print (row)
+        sheet.append(row)
+
+    # Hide and Protect the sheet
+    sheet.sheet_state = 'hidden'  # Hide the sheet
+    sheet.protection.set_password(password)
+
+    # Save the workbook
+    workbook.save(target_path)
+    msg = "Success! Source appended to target workbook as hidden, locked sheet."
+    return msg
+
+
+def unlock_hidden_sheets(excel_file_path, password):
+    workbook = load_workbook(excel_file_path)
+    unlocked_sheets = []
+    for sheet_name in workbook.sheetnames:
+        sheet = workbook[sheet_name]
+        if sheet.sheet_state == 'hidden':
+            try:
+                sheet.protection.disable()
+                sheet.sheet_state = 'visible'
+                unlocked_sheets.append(sheet_name)
+            except Exception as e:
+                # Log or handle the fact that some sheets might not be unlocked due to incorrect password or other issues
+                return e
+    workbook.save(excel_file_path)
+    return unlocked_sheets
+
 
 # Function to clean up the generated file
 def cleanup_file(file_path):

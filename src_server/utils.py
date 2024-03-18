@@ -10,7 +10,6 @@ def dataframe_to_dicts(df):
 
 
 # TO HANDLE EXCEL WITH MULTIPLE SHEETS
-
 def read_excel_to_dataframes(excel_file_path):
     # Reads all sheets into a dictionary of DataFrames
     dfs = pd.read_excel(excel_file_path, sheet_name=None)

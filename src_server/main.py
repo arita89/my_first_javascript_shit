@@ -8,11 +8,17 @@ from tempfile import NamedTemporaryFile
 from werkzeug.datastructures import FileStorage
 import os
 
+from openpyxl import load_workbook
+from openpyxl.worksheet.protection import SheetProtection
+from dotenv import load_dotenv
+
 import services
 import utils
-#from models.create_model_from_csv import generate_pydantic_model
 from models.create_models_from_csv import generate_pydantic_model
 from validation_pre_ingestion import *
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -173,6 +179,99 @@ class ValidateExcelwithPydantic(Resource):
         else:
             return {'message': 'valid_data!'}, 200
 
+
+# Namespace for locking and hiding sheets
+ns_lock =  api.namespace('lock', description='Endpoints related to locking and hiding Excel sheets')
+
+# Parser for file uploads
+upload_parser_lock = ns_lock.parser()
+upload_parser_lock.add_argument('excel_file', location='files', type=FileStorage, required=True, help='Target Excel file')
+upload_parser_lock.add_argument('source_file', location='files', type=FileStorage, required=True, help='Source CSV or Excel file to append')
+
+@ns_lock.route('/upload-and-lock')
+@ns_lock.expect(upload_parser_lock)
+class UploadAndLock(Resource):
+    @ns_lock.doc('upload_and_lock')
+    def post(self):
+        """attaches a source csv or excel to a target excel file, it hides it and locks it"""
+        args = upload_parser_lock.parse_args()
+        excel_file = args['excel_file']
+        source_file = args['source_file']
+        sheet_name = os.getenv('SHEET_NAME')
+        password = os.getenv('SHEET_PASSWORD')
+
+        source_suffix = os.path.splitext(source_file.filename)[1]
+        # Ensure source_suffix is either .csv or .xlsx
+        if source_suffix not in ['.csv', '.xlsx', '.xls']:
+            return {'message': 'Unsupported source file type'}, 400
+
+        # Save the uploaded files to temporary files
+        excel_file_temp = NamedTemporaryFile(delete=False, suffix='.xlsx')
+        source_file_temp = NamedTemporaryFile(delete=False, suffix=source_suffix )  # Respect the source file extension
+
+        excel_file.save(excel_file_temp.name)
+        source_file.save(source_file_temp.name)
+
+        # Process and append the source file to the target Excel workbook
+        message = services.append_to_excel_as_hidden_locked(source_file_temp.name, excel_file_temp.name, sheet_name, password)
+        
+        # Set up the cleanup after sending the file
+        @after_this_request
+        def cleanup(response):
+            try:
+                os.unlink(excel_file_temp.name)
+                os.unlink(source_file_temp.name)
+            except Exception as error:
+                app.logger.error("Error removing temporary file: %s", error)
+            return response
+        
+        # After processing, the temp_excel file contains the modified workbook
+        if "Success" in message:
+            # Prepare the modified Excel file for download
+            return send_file(excel_file_temp.name, download_name='modified_workbook.xlsx', as_attachment=True)
+        else:
+            return {'message': message}
+
+# Define the parser for unlocking hidden sheets
+unlock_parser = ns_lock.parser()
+unlock_parser.add_argument('excel_file', location='files', type=FileStorage, required=True, help='Excel file to process')
+unlock_parser.add_argument('password', type=str, required=True, help='Password to unlock sheets')
+
+@ns_lock.route('/unlock-hidden-sheets')
+@ns_lock.expect(unlock_parser)
+class UnlockHiddenSheets(Resource):
+    @ns_lock.doc('unlock_hidden_sheets')
+    def post(self):
+        """Unlocks and reveals hidden sheets in the provided Excel workbook and returns it for download."""
+        args = unlock_parser.parse_args()
+        excel_file = args['excel_file']  # This is a FileStorage object
+        password = args['password']
+
+        # Create a temporary file
+        temp_file = NamedTemporaryFile(delete=False, suffix='.xlsx')
+        temp_path = temp_file.name
+        excel_file.save(temp_path)
+
+        # Attempt to unlock hidden sheets
+        unlocked_sheets = services.unlock_hidden_sheets(temp_path, password)
+
+        if unlocked_sheets:
+            message = 'Unlocked sheets'
+        else:
+            message = 'No hidden sheets were unlocked or incorrect password provided'
+
+        # Set up the cleanup after sending the file
+        @after_this_request
+        def cleanup(response):
+            try:
+                os.unlink(temp_path)
+            except Exception as error:
+                app.logger.error("Error removing temporary file: %s", error)
+            return response
+
+        # Return the file for download
+        return send_file(temp_path, download_name='unlocked_workbook.xlsx', as_attachment=True)
+        
 # Regular Flask route for the home page
 @app.route("/")
 def index():
