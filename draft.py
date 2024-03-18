@@ -123,3 +123,33 @@ class TemplateModel(BaseModel):
     #print ("PYDANTIC MODEL BUILT")
     #print (model_code.strip())
     return model_code.strip()
+
+# Extend your existing upload parser configuration 
+upload_parser.add_argument('file', location='files', type=FileStorage, required=True, help='Excel file to validate')
+@ns.route("/validate-excel")
+@ns.expect(upload_parser)
+class ValidateExcel(Resource):
+    @ns.doc("validate_excel_data")
+    def post(self):
+        args = upload_parser.parse_args()
+        excel_file = args['file']
+        
+        # Temporary saving file to read it
+        temp_file = NamedTemporaryFile(delete=False, suffix=".xlsx")
+        excel_file.save(temp_file.name)
+
+        # Process the file for validation
+        dfs = read_excel_to_dataframes(temp_file.name)
+        print (dfs)
+        data_dicts = convert_dfs_to_data_dicts(dfs)
+        valid_data, errors = validate_data_with_pydantic(data_dicts)
+
+        # Cleanup the temporary file
+        os.remove(temp_file.name)
+
+        if errors:
+            # Return validation errors
+            return {'validation_errors': errors}, 400
+        else:
+            # Placeholder for further processing of valid_data, such as database ingestion
+            return {'message': 'Excel data is valid!', 'valid_data': [data.dict() for data in valid_data]}, 200

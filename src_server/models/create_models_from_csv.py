@@ -58,6 +58,6 @@ def generate_pydantic_model(csv_content: str) -> str:
             validation_code = f", {column['validation']}" if column['validation'] else ""
             fields_code.append(f"    {column['name']}: {field_type} = Field(default=None{validation_code})")
         fields_code_str = "\n".join(fields_code)
-        model_code = f"class {class_name}(BaseModel):\n{fields_code_str}\n\n"
+        model_code = f"class {class_name}(BaseModel):\n    __sheet_name__ = '{sheet_name}'\n{fields_code_str}\n\n"
         models_code += model_code
     return models_code.strip()

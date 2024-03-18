@@ -12,7 +12,7 @@ import services
 import utils
 #from models.create_model_from_csv import generate_pydantic_model
 from models.create_models_from_csv import generate_pydantic_model
-from validation_pre_ingestion import read_excel_to_dataframes, dataframe_to_dicts, convert_dfs_to_data_dicts, validate_data_with_pydantic
+from validation_pre_ingestion import *
 
 app = Flask(__name__)
 CORS(app)
@@ -24,8 +24,10 @@ api = Api(
 upload_parser = reqparse.RequestParser()
 upload_parser.add_argument("file", location="files", type=FileStorage, required=True)
 
+
+## TRANSFORMATION ENDPOINTS
 # Define the API namespace
-ns = api.namespace("yaml2excel", description="List of all endpoints")
+ns = api.namespace("files_transformations", description="here all the endpoints that take a file in format x and return a format y or transformation of the same.")
 
 @ns.route("/csv-to-yaml")
 @ns.expect(upload_parser)
@@ -107,35 +109,69 @@ class CSVToPydanticModel(Resource):
         # Or just return a success message
         return {'message': 'Pydantic models generated successfully', 'file_path': file_path}
 
-# Extend your existing upload parser configuration 
-upload_parser.add_argument('file', location='files', type=FileStorage, required=True, help='Excel file to validate')
-@ns.route("/validate-excel")
-@ns.expect(upload_parser)
-class ValidateExcel(Resource):
-    @ns.doc("validate_excel_data")
+
+## VALIDATION ENDPOINTS 
+# Define the API namespace
+ns_val = api.namespace("files_validations", description="here all the endpoints that take a file and validate it against certain preset rules (from another file or hardcoded)")
+
+# add arguments to accept multiple files 
+upload_parser_val = reqparse.RequestParser()
+upload_parser_val .add_argument('excel_file', location='files', type=FileStorage, required=True, help='Excel file to validate')
+upload_parser_val .add_argument('csv_file', location='files', type=FileStorage, required=True, help='CSV file with validation rules')
+
+@ns_val.route("/validate-excel-sheets")
+@ns_val.expect(upload_parser_val )
+class ValidateExcelSheets(Resource):
+    @ns_val .doc("validate_excel_sheets")
+    def post(self):
+        args = upload_parser_val .parse_args()
+        excel_file = args['excel_file']
+        csv_file = args['csv_file']
+
+        # Read CSV content
+        csv_content = csv_file.read().decode('utf-8-sig')
+        required_sheets = get_required_sheets(csv_content)
+
+        # Temporary saving the Excel file to read it
+        temp_excel_file = NamedTemporaryFile(delete=False, suffix=".xlsx")
+        excel_file.save(temp_excel_file.name)
+
+        missing_sheets = validate_excel_sheets(temp_excel_file.name, required_sheets)
+
+        # Cleanup: Close and remove the temporary file
+        temp_excel_file.close()
+        os.unlink(temp_excel_file.name)
+
+        if missing_sheets:
+            # Return missing sheets
+            return {'missing_sheets': missing_sheets}, 400
+        else:
+            return {'message': 'Excel contains all required sheets!'}, 200
+
+@ns_val.route("/validate-excel-with-pydantic")
+@ns_val.expect(upload_parser)
+class ValidateExcelwithPydantic(Resource):
+    @ns_val .doc("validate-excel-with-pydantic")
     def post(self):
         args = upload_parser.parse_args()
         excel_file = args['file']
-        
-        # Temporary saving file to read it
-        temp_file = NamedTemporaryFile(delete=False, suffix=".xlsx")
-        excel_file.save(temp_file.name)
 
-        # Process the file for validation
-        dfs = read_excel_to_dataframes(temp_file.name)
-        print (dfs)
-        data_dicts = convert_dfs_to_data_dicts(dfs)
-        valid_data, errors = validate_data_with_pydantic(data_dicts)
+        # Temporary saving the Excel file to read it
+        temp_excel_file = NamedTemporaryFile(delete=False, suffix=".xlsx")
+        excel_file.save(temp_excel_file.name)
 
-        # Cleanup the temporary file
-        os.remove(temp_file.name)
+        data_dicts = utils.read_excel_to_data_dicts(temp_excel_file.name)
+        valid_data, validation_errors = validate_data_with_pydantic(data_dicts)
 
-        if errors:
-            # Return validation errors
-            return {'validation_errors': errors}, 400
+        # Cleanup: Close and remove the temporary file
+        temp_excel_file.close()
+        os.unlink(temp_excel_file.name)
+
+        if validation_errors:
+            # Return missing sheets
+            return {'validation_errors': validation_errors}, 400
         else:
-            # Placeholder for further processing of valid_data, such as database ingestion
-            return {'message': 'Excel data is valid!', 'valid_data': [data.dict() for data in valid_data]}, 200
+            return {'message': 'valid_data!'}, 200
 
 # Regular Flask route for the home page
 @app.route("/")
