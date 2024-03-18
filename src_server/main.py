@@ -10,7 +10,8 @@ import os
 
 import services
 import utils
-from models.create_model_from_csv import generate_pydantic_model
+#from models.create_model_from_csv import generate_pydantic_model
+from models.create_models_from_csv import generate_pydantic_model
 from validation_pre_ingestion import read_excel_to_dataframes, dataframe_to_dicts, convert_dfs_to_data_dicts, validate_data_with_pydantic
 
 app = Flask(__name__)
@@ -89,7 +90,7 @@ class CSVToPydanticModel(Resource):
         filename = utils.generate_file_name("model", "py")
 
         # Specify the directory where you want to save the file
-        save_directory = "./models/"
+        save_directory = "./models/history/"
         if not os.path.exists(save_directory):
             print ("directory not found, directory created")
             os.makedirs(save_directory)
@@ -104,7 +105,7 @@ class CSVToPydanticModel(Resource):
         # Optional: Return the file or a message indicating success
         # return send_from_directory(directory=save_directory, filename=filename, as_attachment=True)
         # Or just return a success message
-        return {'message': 'Pydantic model generated successfully', 'file_path': file_path}
+        return {'message': 'Pydantic models generated successfully', 'file_path': file_path}
 
 # Extend your existing upload parser configuration 
 upload_parser.add_argument('file', location='files', type=FileStorage, required=True, help='Excel file to validate')
