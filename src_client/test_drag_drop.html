@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Drag and Drop Example with Upload and Preview</title>
+    <style>
+        .drag-area {
+            border: 2px dashed #007bff;
+            border-radius: 5px;
+            width: 100%;
+            height: 150px;
+            text-align: center;
+            line-height: 150px;
+            color: #007bff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .preview-images img {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 2px solid #007bff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h2>Drag and Drop Example with Upload and Preview</h2>
+        <div id="dragArea" class="drag-area">
+            Drag files here or click to upload.
+        </div>
+        <input type="file" id="fileInput" hidden multiple>
+        <div class="preview-images"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        let dragArea = document.getElementById('dragArea');
+        let fileInput = document.getElementById('fileInput');
+        let previewContainer = document.querySelector('.preview-images');
+
+        dragArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', function () {
+            handleFiles(this.files);
+        });
+
+        dragArea.addEventListener('dragover', (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            dragArea.style.backgroundColor = "#f0f0f0";
+        });
+
+        dragArea.addEventListener('dragleave', (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            dragArea.style.backgroundColor = "transparent";
+        });
+
+        dragArea.addEventListener('drop', (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            dragArea.style.backgroundColor = "transparent";
+            handleFiles(event.dataTransfer.files);
+        });
+
+        function handleFiles(files) {
+            previewContainer.innerHTML = ''; // Clear previous previews
+            Array.from(files).forEach(file => {
+                alert(`File uploaded: ${file.name}`); // Confirmation message
+                if (file.type.startsWith('image/')) { // Preview for image files
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
