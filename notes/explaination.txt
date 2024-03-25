@@ -1,0 +1,52 @@
+In openpyxl, you can use data validation to enforce certain rules or criteria for the data entered into cells. Here are the types of data validation you can apply and a brief guide on how to use them:
+
+# Types of Data Validation
+List: Restrict data entry to a list of values.
+Whole Number: Restrict data entry to whole numbers within a specified range.
+Decimal: Restrict data entry to decimal numbers within a range.
+Date: Restrict data entry to dates within a range.
+Time: Restrict data entry to times within a range.
+Text Length: Restrict data entry to text of a certain length.
+Custom: Use a formula to determine valid data entries.
+
+# CSV Structure Like This:
+sheet: Where to apply the validation.
+sheet_is_optional: Indicates if the sheet's creation is optional.
+column_name: The name of the column in Excel where validation applies.
+val_type: The type of data validation (e.g., list, whole, decimal).
+val_operator: Operator for validation, if applicable (e.g., between, equal).
+val_formula1: The first criterion for the validation (start of range, list items, etc.).
+val_formula2: The second criterion for the validation, if necessary.
+val_range: Specific range within the column to apply validation, if desired.
+
+# Encoding Validation Rules
+1. List (list)
+val_type: "list"
+val_details: A comma-separated list of values.
+Example: "Option1,Option2,Option3"
+2. Whole Number (whole)
+val_type: "whole"
+val_details: The operator and the values, separated by commas.
+Example: "between,1,100" for a value between 1 and 100.
+3. Decimal (decimal)
+val_type: "decimal"
+val_details: Same format as whole number.
+Example: "notBetween,0.1,9.9" for a value not between 0.1 and 9.9.
+4. Date (date)
+val_type: "date"
+val_details: The operator and the dates, in a standard format, separated by commas.
+Example: "between,2020-01-01,2024-12-31" for a date between Jan 1, 2020, and Dec 31, 2024.
+5. Time (time)
+val_type: "time"
+val_details: Similar to date.
+Example: "greaterThan,06:00" for a time greater than 6:00 AM.
+6. Text Length (textLength)
+val_type: "textLength"
+val_details: The operator and a number, separated by commas.
+Example: "lessThan,10" for text less than 10 characters long.
+7. Custom (custom)
+val_type: "custom"
+val_details: A formula.
+Example: "=LEN(A1)>3" for text where the length is greater than 3 characters.
+
+#
