@@ -19,6 +19,48 @@ val_formula1: The first criterion for the validation (start of range, list items
 val_formula2: The second criterion for the validation, if necessary.
 val_range: Specific range within the column to apply validation, if desired.
 
+column_name
+Description: The name or reference of the column in Excel where validation will be applied.
+Examples: 'A', 'B', 'C', etc. You would typically specify the column letter(s).
+val_type
+The type of data validation. It defines the nature of the data that can be entered in the cell(s).
+
+Options:
+'list': A list of allowed values.
+'whole': Only whole numbers are permitted.
+'decimal': Only decimal numbers are permitted.
+'date': Only date values are allowed.
+'time': Only time values are permitted.
+'textLength': The text length is restricted to a certain range or condition.
+'custom': A custom formula determines valid data.
+val_operator
+Specifies the operator for the validation, mainly used with numeric, date, and text length validations.
+
+Options:
+'between': The value must be between val_formula1 and val_formula2.
+'notBetween': The value must not be between val_formula1 and val_formula2.
+'equal': The value must be equal to val_formula1.
+'notEqual': The value must not be equal to val_formula1.
+'greaterThan': The value must be greater than val_formula1.
+'lessThan': The value must be less than val_formula1.
+'greaterThanOrEqual': The value must be greater than or equal to val_formula1.
+'lessThanOrEqual': The value must be less than or equal to val_formula1.
+val_formula1
+The first criterion for the validation. It varies based on the type of validation.
+
+Usage:
+For a list, this would be the list items (e.g., "\"Item1,Item2,Item3\"").
+For numeric ranges, the start of the range.
+For custom formulas, the actual formula (e.g., '=SUM(A1:A10)<100').
+val_formula2
+The second criterion for the validation, used with operators that require a range.
+
+Usage:
+For numeric ranges, the end of the range.
+Not used for lists or custom formulas.
+val_range
+Specifies the actual cells or range within the column to apply validation.
+
 # Encoding Validation Rules
 1. List (list)
 val_type: "list"
