@@ -10,7 +10,12 @@ Connecting to a virtual machine (VM) via the Visual Studio Code (VS Code)using S
    - You can generate keys using `ssh-keygen` in your local terminal.
    - Add the public key to your VM’s authorized keys.
 
-- to check on your current keys:
+- to check on your current keys, this command will show you all the files in your .ssh directory. Common filenames include:
+
+id_rsa (private key)
+id_rsa.pub (public key)
+id_ecdsa, id_ecdsa.pub
+id_ed25519, id_ed25519.pub
 ```
 ls -al ~/.ssh
 ```     
