@@ -1,0 +1,4 @@
+check-env:
+    @$(foreach var,$(REQUIRED_VARS),\
+        $(if $(value $(var)),,\
+            $(error Missing required environment variable: $(var))))
